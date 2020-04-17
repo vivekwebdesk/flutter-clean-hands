@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
-import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:geocoder/geocoder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // constants in shareable preferences
 final homeLocationKey = 'my_home_location';
@@ -77,24 +75,16 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   // this is called when user selects new address from the Google PlacesAutoComplete widget
-  Future<Null> displayPrediction(Prediction p) async {
-    if (p != null) {
-      PlacesDetailsResponse detail =
-          await _places.getDetailsByPlaceId(p.placeId);
-      // var address = await Geocoder.local.findAddressesFromQuery(p.description);
-
-      // update the state and update the values in shared preferences for persistence
-      setState(() {
-        _homeLocation = p.description;
-        _homeLatitude = detail.result.geometry.location.lat;
-        _homeLongitude = detail.result.geometry.location.lng;
-      });
-      await _saveHomeLocation();
-
-      // update the geofence
-      _addGeofence();
-    }
+  Future<Null> displayPrediction() async {
+    setState(() {
+      _homeLocation = "At My House";
+      _homeLatitude = "lat";
+      _homeLongitude = "long";
+    });
+    await _saveHomeLocation();
+    _addGeofence();
   }
+
 
   // error handler for PlacesAutoComplete
   void onError(PlacesAutocompleteResponse response) {
@@ -215,12 +205,7 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           // pop up google address search widget and call display prediction after user makes selection
-          Prediction p = await PlacesAutocomplete.show(
-              context: context,
-              apiKey: kGoogleApiKey,
-              onError: onError,
-              mode: Mode.overlay);
-          await displayPrediction(p); // call to update user selection values
+          await displayPrediction(); // call to update user selection values
         },
         tooltip: 'Set Home Location',
         child: Icon(Icons.add),
